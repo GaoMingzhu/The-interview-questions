@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>仪表盘效果实现</title>
+<!-- 	<link href="./css/board.css"  rel="stylesheet"> -->
+	<style>
+		#time{
+			color:#f75000;
+			font-size:70px;
+			position: fixed;
+			top:170px;
+			left:445px;
+		}
+	</style>
+</head>
+<body>
+	<canvas width="1000" height="500" id="myCanvas">
+		
+	</canvas>
+	<h1 id="time">0</h1>
+</body>
+	<script>
+		const trackW = 15;//轨道宽度
+		const trackWo = 5;//外圆弧宽度
+		const rx = 500;
+		const ry = 300;
+		const radius = 200;
+		const radiusOut = 215;
+		const innerLineW = 15;//进度圆弧宽度
+		const begin=2.4;
+		const end=0.7;
+
+
+		const myCanvas = document.getElementById('myCanvas');
+		const ctx = myCanvas.getContext('2d');
+
+		function draw (toAngle, currentAngle = begin) {
+		  ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
+		  //外圆弧
+		  ctx.beginPath();
+		  ctx.strokeStyle = '#ffad86';
+		  ctx.lineWidth = trackWo;
+		  ctx.arc(rx, ry, radiusOut, begin, end, false);
+		  ctx.stroke();
+		  // 轨道
+		  ctx.beginPath();
+		  ctx.strokeStyle = '#ffad86';
+		  ctx.lineWidth = trackW;
+		  ctx.arc(rx, ry, radius, begin, end, false);
+		  ctx.stroke();
+		  // 进度圆弧
+		  ctx.beginPath();
+		  ctx.lineCap = 'round';
+		  ctx.strokeStyle = '#f75000';
+		  ctx.lineWidth = innerLineW;
+		  ctx.arc(rx, ry, radius, begin, currentAngle, false);
+		  ctx.stroke();
+
+		  if (currentAngle < toAngle) {
+		    currentAngle += 0.1
+		    if (currentAngle > toAngle) 
+		    currentAngle = toAngle
+		    requestAnimationFrame(() => {
+		      draw(toAngle, currentAngle)
+		    })
+		  }
+
+		  ctx.font="30px 黑体";
+		  ctx.fillStyle="#f75000";
+		  ctx.fillText("信用极好",440,350);
+
+		  //获取当天日期
+		  var date = new Date();
+		  var year=date.getFullYear();
+		  var month=date.getMonth()+1;
+		  var day=date.getDate();
+		  var rq='评估时间：'+year+'.'+month+"."+day;
+		  ctx.font="25px 黑体";
+		  ctx.fillStyle="#f75000";
+		  ctx.fillText(rq,380,390);
+		}
+		draw(1.8 * Math.PI);
+
+		//数字自增到某一值动画参数（目标元素,自定义配置）
+			function NumAutoPlusAnimation(targetEle, options) {
+				/*可以自己改造下传入的参数，按照自己的需求和喜好封装该函数*/
+				//不传配置就把它绑定在相应html元素的data-xxxx属性上吧
+				options = options || {};
+ 
+				var $this = document.getElementById(targetEle),
+					time = options.time || $this.data('time'), //总时间--毫秒为单位
+					finalNum = options.num || $this.data('value'), //要显示的真实数值
+					regulator = options.regulator || 100, //调速器，改变regulator的数值可以调节数字改变的速度
+ 
+					step = finalNum / (time / regulator),/*每30ms增加的数值--*/
+					count = 0, //计数器
+					initial = 0;
+ 
+				var timer = setInterval(function() {
+ 
+					count = count + step;
+ 
+					if(count >= finalNum) {
+						clearInterval(timer);
+						count = finalNum;
+					}
+					//t未发生改变的话就直接返回
+					//避免调用text函数，提高DOM性能
+					var t = Math.floor(count);
+					if(t == initial) return;
+ 
+					initial = t;
+ 
+					$this.innerHTML = initial;
+				}, 30);
+			}
+ 
+			NumAutoPlusAnimation("time", {
+				time: 1000,
+				num: 750,
+				regulator: 50
+			})
+
+	</script>
+</html>
